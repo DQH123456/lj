@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>放烟花效果（面向对象版）</title>
+<style type="text/css">
+*{margin:0;padding:0;}
+html,body{overflow:hidden;}
+body{background:#000;}
+.spark {
+	width: 3px;
+	height: 50px;
+	background: white;
+	position: absolute;
+} 
+.firework {
+	position:absolute;
+	width: 3px;
+	height: 3px;
+}
+</style>
+
+<script src="animate.js"></script>
+<script type="text/javascript">
+// 	实现放烟花效果；
+// 在屏幕任意地方点击，在屏幕底下与点击位置同水平坐标的位置生成一个div，然后运动到点击位置，可以调用animate，改变定位到点击位置，同时高度变到3像素，到达位置后，移除该元素；
+// 然后爆炸出20-50个小div，
+	document.onclick = function(evt){
+		var e = evt || event;
+		launch({x:e.clientX, y:e.clientY});
+	}
+	
+	//发射
+	function launch(target_coord){
+		var spark = document.createElement("div");
+		spark.className = "spark";
+		spark.style.left = target_coord.x + "px";
+		spark.style.top = document.body.clientHeight || document.documentElement.clientHeight + "px";
+		document.body.appendChild(spark);
+		animate(spark, {height:3,top:target_coord.y}, function(){
+			explode(target_coord);
+			document.body.removeChild(spark);
+		});
+		
+	}
+	
+	//爆炸
+	function explode(target_coord){
+//		console.log(coord.left + "," + coord.top)
+		// 随机个数，范围20-50个
+		var count = Math.ceil(Math.random()*50) + 20;
+		for(var i=0; i<count; i++){
+			var _spark = document.createElement("div");
+			_spark.className = "firework";
+			//随机颜色 
+			var bgcolor = "#"+ Math.ceil(Math.random()*0xFFFFFF).toString(16);
+			_spark.style.background = bgcolor;
+			//随机水平速度(大小和方向均随机)
+			var speedX = (Math.ceil(Math.random()*10) + 1) * (Math.random()>=0.5 ? 1 : -1);
+			//随机垂直速度
+			var speedY = -(Math.ceil(Math.random()*20) + 5);
+			//设定位置
+			_spark.style.left = target_coord.x + "px";
+			_spark.style.top = target_coord.y + "px";
+			document.body.appendChild(_spark);
+			(function(_spark,spd){
+				_spark.timer = setInterval(function(){
+					_spark.style.left = _spark.offsetLeft + spd.v + "px" ;
+					_spark.style.top = _spark.offsetTop + spd.h++ + "px";
+					if(_spark.offsetTop >= (document.body.clientHeight || document.documentElement.clientHeight)){
+						clearInterval(_spark.timer);
+						document.body.removeChild(_spark);
+					}
+				}, 30);
+			}(_spark,{v:speedX,h:speedY}))
+			
+		}
+		
+	}
+	
+	
+	
+</script>
+</head>
+<body>
+
+</body>
+</html>
